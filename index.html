@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#ff9ab8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="スマホで遊べるミニゲーム集。ランナー・スネーク・ゲート選択シューティングの3本立て。ふたりで対戦もできます。">
+<title>PALM PARTY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800;900&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div id="home" class="screen">
+  <div class="home-inner">
+    <header class="logo">
+      <div class="logo-main"><span class="l1">PALM</span><span class="l2">PARTY</span></div>
+      <div class="logo-sub">てのひらパーティ ・ ミニゲーム3本立て</div>
+    </header>
+    <div class="mode" role="group" aria-label="人数">
+      <button type="button" data-np="1">ひとりで</button>
+      <button type="button" data-np="2">ふたりで</button>
+    </div>
+    <p class="mode-hint" id="modeHint"></p>
+    <div class="cards" id="cards"></div>
+    <footer class="foot">
+      <button type="button" id="muteBtn" class="chip">サウンド ON</button>
+      <span class="pc-hint">PC: P1 = 矢印キー / P2 = WASD ・ Esc で一時停止</span>
+    </footer>
+  </div>
+</div>
+
+<button type="button" id="pauseBtn" class="pause-btn hidden" aria-label="一時停止"><span></span><span></span></button>
+
+<div id="pause" class="overlay hidden">
+  <div class="res-half"><div class="panel">
+    <div class="res-out">PAUSE</div>
+    <div class="btns col">
+      <button class="btn primary" data-act="resume">つづける</button>
+      <button class="btn" data-act="retry">さいしょから</button>
+      <button class="btn" data-act="menu">メニューにもどる</button>
+    </div>
+  </div></div>
+</div>
+
+<div id="result" class="overlay hidden"></div>
+
+<div id="rotate" aria-hidden="true">
+  <div class="rot-ic"></div>
+  <div>スマホを縦向きにしてね</div>
+</div>
+
+<noscript><div class="nojs">JavaScript を有効にしてください</div></noscript>
+
+<script src="js/core.js"></script>
+<script src="js/games/runner.js"></script>
+<script src="js/games/snake.js"></script>
+<script src="js/games/gate.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
