@@ -190,7 +190,8 @@
       ? 'あそびたいゲームをタップしてスタート！'
       : 'スマホを机に置いて向かい合わせで対戦！ 手前が P1（青）、向こう側が P2（オレンジ）';
     $('#cards').innerHTML = PP.games.map((d) => {
-      const best = PP.store.get('best_' + d.id, 0);
+      const b = PP.store.get('best_' + d.id, null);
+      const best = b == null ? '-' : fmtScore(d, b);
       return `<button class="card" data-id="${d.id}">
         <span class="ic" style="background:${d.bg}">${d.icon}</span>
         <span class="ct">
@@ -241,33 +242,38 @@
     last = performance.now();
   }
 
+  const fmtScore = (def, v) => (def.fmt ? def.fmt(v) : String(v));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const btns = '<div class="btns"><button class="btn primary" data-act="retry">もう一回</button><button class="btn" data-act="menu">メニュー</button></div>';
 
   function showResult(def, res) {
     const el = $('#result');
+    const lower = !!def.lowerIsBetter;
+    const show = (r) => esc(r.text || fmtScore(def, r.score));
     if (res.length === 1) {
-      const key = 'best_' + def.id, best = PP.store.get(key, 0), nr = res[0].score > best;
-      if (nr) PP.store.set(key, res[0].score);
+      const key = 'best_' + def.id, best = PP.store.get(key, null), r0 = res[0];
+      const nr = r0.valid !== false && (best == null || (lower ? r0.score < best : r0.score > best));
+      if (nr) PP.store.set(key, r0.score);
+      const nb = nr ? r0.score : best;
       el.innerHTML = `<div class="res-half"><div class="panel">
         <div class="res-game">${esc(def.name)}</div>
-        ${nr ? '<div class="badge">NEW RECORD!</div>' : '<div class="res-label">SCORE</div>'}
-        <div class="res-score">${res[0].score}</div>
-        <div class="res-detail">${esc(res[0].detail)}</div>
-        <div class="res-best">ベスト ${Math.max(best, res[0].score)}</div>
+        ${nr ? '<div class="badge">NEW RECORD!</div>' : `<div class="res-label">${lower ? 'TIME' : 'SCORE'}</div>`}
+        <div class="res-score">${show(r0)}</div>
+        <div class="res-detail">${esc(r0.detail)}</div>
+        <div class="res-best">ベスト ${nb == null ? '-' : esc(fmtScore(def, nb))}</div>
         ${btns}</div></div>`;
       (nr ? PP.audio.sfx.win : PP.audio.sfx.end)();
     } else {
-      const out = (me, op) => (me > op ? 'win' : me < op ? 'lose' : 'draw');
+      const out = (me, op) => (me === op ? 'draw' : (lower ? me < op : me > op) ? 'win' : 'lose');
       const word = { win: 'WIN!', lose: 'LOSE…', draw: 'DRAW' };
       const half = (i, r, flip) => {
         const c = PP.COLORS[i], o = out(r.score, res[1 - i].score);
         return `<div class="res-half${flip ? ' flip' : ''}"><div class="panel ${o}" style="--pc:${c.main}">
           <div class="pl-chip">${c.name}</div>
           <div class="res-out">${word[o]}</div>
-          <div class="res-score">${r.score}</div>
+          <div class="res-score">${show(r)}</div>
           <div class="res-detail">${esc(r.detail)}</div>
-          <div class="res-best">あいて ${res[1 - i].score}</div>
+          <div class="res-best">あいて ${show(res[1 - i])}</div>
           ${btns}</div></div>`;
       };
       el.innerHTML = half(1, res[1], true) + half(0, res[0], false);
